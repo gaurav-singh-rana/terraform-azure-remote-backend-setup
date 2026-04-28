@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terraform Azure Remote Backend</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 40px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #38bdf8;
+}
+
+h2 {
+    color: #22c55e;
+    margin-top: 40px;
+}
+
+p {
+    line-height: 1.6;
+    color: #cbd5f5;
+}
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+code {
+    background: #020617;
+    padding: 10px;
+    display: block;
+    border-radius: 8px;
+    overflow-x: auto;
+    color: #38bdf8;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #22c55e;
+    color: black;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+.footer {
+    margin-top: 50px;
+    text-align: center;
+    color: #64748b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🚀 Terraform Azure Remote Backend Setup</h1>
+
+<p>
+Production-style Terraform setup using an <strong>existing Azure Storage Account</strong> 
+for remote state management.
+</p>
+
+<div>
+<span class="badge">Terraform</span>
+<span class="badge">Azure</span>
+<span class="badge">DevOps</span>
+</div>
+
+---
+
+<h2>📌 What This Project Does</h2>
+
+<div class="card">
+<p>
+This project demonstrates how to:
+</p>
+<ul>
+<li>Configure Terraform remote backend in Azure</li>
+<li>Use pre-created Storage Account and Blob Container</li>
+<li>Manage Terraform state securely</li>
+<li>Use implicit dependency between resources</li>
+</ul>
+</div>
+
+---
+
+<h2>⚠️ Important Concept</h2>
+
+<div class="card">
+<p>
+Terraform backend <strong>cannot be created and used in the same run</strong>.
+</p>
+
+<p>
+That’s why this project assumes:
+</p>
+
+<ul>
+<li>Storage Account already exists</li>
+<li>Container already exists</li>
+<li>Backend is configured using those resources</li>
+</ul>
+</div>
+
+---
+
+<h2>🧱 Resources in This Project</h2>
+
+<div class="card">
+<ul>
+<li>Resource Group</li>
+<li>Storage Account (for tfstate)</li>
+<li>Blob Container</li>
+</ul>
+</div>
+
+---
+
+<h2>⚙️ Terraform Code</h2>
+
+<div class="card">
+<code>
+resource "azurerm_resource_group" "rg_dev_main" {
+  name     = var.rg_name
+  location = var.rg_location
+}
+
+resource "azurerm_storage_account" "sa_tfstate" {
+  name                     = "sttfstateci001"
+  resource_group_name      = azurerm_resource_group.rg_dev_main.name
+  location                 = azurerm_resource_group.rg_dev_main.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+}
+
+resource "azurerm_storage_container" "sc_tfstate" {
+  name                  = "tfstate"
+  storage_account_id    = azurerm_storage_account.sa_tfstate.id
+  container_access_type = "private"
+}
+</code>
+</div>
+
+---
+
+<h2>🔐 Backend Configuration</h2>
+
+<div class="card">
+<code>
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg_dev"
+    storage_account_name = "rgdevsa"
+    container_name       = "rgdevsecure"
+    key                  = "terraform.tfstate"
+  }
+}
+</code>
+</div>
+
+---
+
+<h2>🚀 How to Run</h2>
+
+<div class="card">
+<code>
+terraform init
+terraform plan
+terraform apply
+</code>
+</div>
+
+---
+
+<h2>🧠 Key Learnings</h2>
+
+<div class="card">
+<ul>
+<li>Terraform backend lifecycle</li>
+<li>Remote state management</li>
+<li>Implicit resource dependencies</li>
+<li>Azure infrastructure provisioning</li>
+</ul>
+</div>
+
+---
+
+<h2>❌ Common Mistake</h2>
+
+<div class="card">
+<code>
+backend "azurerm" {
+  resource_group_name = azurerm_resource_group.rg.name ❌
+}
+</code>
+
+<p>Backend cannot reference Terraform resources.</p>
+</div>
+
+---
+
+<div class="footer">
+<p>Built by Gaurav Singh | DevOps Engineer 🚀</p>
+</div>
+
+</div>
+
+</body>
+</html>
